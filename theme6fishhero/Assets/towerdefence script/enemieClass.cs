@@ -11,6 +11,7 @@ public class enemieClass : MonoBehaviour
     public ParticleSystem deathEffect;
     public int normalCount;
     public CollectionManager CM;
+    public int unitLevel;
 
     private Rigidbody2D rb2;
 
