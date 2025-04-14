@@ -12,6 +12,7 @@ public class enemieClass : MonoBehaviour
     public int normalCount;
     public CollectionManager CM;
     public int unitLevel;
+    private fishManager fishManager;
 
     private Rigidbody2D rb2;
 
@@ -20,6 +21,7 @@ public class enemieClass : MonoBehaviour
         rb2 = GetComponent<Rigidbody2D>();
         CM = FindObjectOfType<CollectionManager>();
         rb2.AddForce(-transform.right * speed);
+        fishManager = FindObjectOfType<fishManager>();
     }
 
     public virtual void Damage(int damage)
@@ -32,6 +34,10 @@ public class enemieClass : MonoBehaviour
         }
         if (HP <=        0) {
             deathEffect.Play();
+            if (fishManager != null)
+            {
+                fishManager.RemoveActiveFish(gameObject);
+            }
             CM.enemyDefeated("normal");
             Destroy(gameObject);
         }

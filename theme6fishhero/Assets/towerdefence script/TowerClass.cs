@@ -5,26 +5,33 @@ using UnityEngine;
 public class TowerClass : MonoBehaviour
 {
     public GameObject target;
-    private SpawnerClass ec;
+    private fishManager ec;
     public float attackSpeed = 1.5f;
     private Coroutine shootingCoroutine;
     public ParticleSystem shootEffcet;
     public int damage = 10;
     private void Start()
     {
-        ec = FindObjectOfType<SpawnerClass>();
+        ec = FindObjectOfType<fishManager>();
         
     }
     private void Update()
     {
-        if (ec.enemies != null)
+        if (ec.activeFish != null && ec.activeFish.Count > 0)
         {
-            findClosestEnemy();
-            
+            if (target == null || !target.activeSelf) // Check if target is dead or null
+            {
+                findClosestEnemy();
+            }
         }
-        else { 
+        else
+        {
             target = null;
-            //Debug.Log("target null");
+            if (shootingCoroutine != null)
+            {
+                StopCoroutine(shootingCoroutine);
+                shootingCoroutine = null;
+            }
         }
     }
 
@@ -32,33 +39,33 @@ public class TowerClass : MonoBehaviour
     void findClosestEnemy()
     {
         float closestDistance = Mathf.Infinity;
-        GameObject closestEnemy= null;
-        foreach( GameObject enemy in ec.enemies )
+        GameObject closestEnemy = null;
+
+        foreach (GameObject enemy in ec.activeFish)
         {
-            float distance = Vector3.Distance(transform.position,enemy.transform.position);
+            if (enemy == null || !enemy.activeSelf) continue; // Skip dead or null enemies
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
                 closestEnemy = enemy;
             }
         }
-        if (closestEnemy != target)
-        {
-            target = closestEnemy;
-            if (shootingCoroutine  != null)
-            {
-                StopCoroutine(shootingCoroutine);
-                shootingCoroutine = null;
-            }
-            if(target != null)
-            { 
-                shootingCoroutine = StartCoroutine(shootDelay());
-                //Debug.Log( "co start");
-            }
 
-        }
         target = closestEnemy;
-        //Debug.Log(target);
+
+        // Manage coroutine
+        if (shootingCoroutine != null)
+        {
+            StopCoroutine(shootingCoroutine);
+            shootingCoroutine = null;
+        }
+
+        if (target != null)
+        {
+            shootingCoroutine = StartCoroutine(shootDelay());
+            Debug.Log("New target acquired: " + target.name);
+        }
     }
 
     void shoot()
